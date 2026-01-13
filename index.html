@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Accès différé</title>
+  <style>
+    body {
+      background: #fff;
+      color: #000;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      cursor: pointer;
+      border: 1px solid #000;
+      background: none;
+      color: #000;
+      margin-bottom: 20px;
+    }
+
+    #countdown {
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+
+    #text {
+      display: none;
+      max-width: 600px;
+      text-align: left;
+      font-size: 16px;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+
+<button id="accessBtn">Accès</button>
+<div id="countdown"></div>
+
+<div id="text"></div>
+
+<audio id="dingSound">
+  <source src="https://www.soundjay.com/button/sounds/button-3.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  const DURATION = 48 * 60 * 60 * 1000; // 48h en ms
+  const KEY = "access_start_time";
+
+  const btn = document.getElementById("accessBtn");
+  const countdown = document.getElementById("countdown");
+  const textDiv = document.getElementById("text");
+  const ding = document.getElementById("dingSound");
+
+  const finalText = `compte discord  
+usename : 
+La réponse ne se trouve pas dans un écran.
+Elle est gravée dans un souvenir.
+
+Reviens au tout premier bijou que je t’ai offert.
+Pas l'objet le plus récent.
+Le premier.
+
+Ce que tu cherches est dessus.
+Un symbole qui parle de lui-même,
+sans début ni fin,
+qui se lit autant qu’il se comprend.
+
+Écris ce symbole en un seul mot.
+
+Puis, sans espace,
+ajoute des initiales.
+
+D’abord les miennes,
+celles que je porte depuis ma reconversion.
+
+Ensuite les tiennes.
+
+Quand tout est aligné,
+tu obtiens le nom complet.
+Et si tu comptes bien,
+il y a onze lettres.
+
+mdp : 
+Tout commence par deux naissances.
+La tienne, puis la mienne.
+
+Découpe-les avec précision :
+le jour, le mois, l’année.
+Rien de plus, rien de moins.
+
+Lorsque les six fragments sont réunis,
+fais-les disparaître dans une seule addition.
+Ce qui reste n’est pas un hasard,
+c’est la première partie de la clé.
+
+Mais un nombre seul ne protège rien.
+
+Ajoute-lui un mot.
+Un mot court, ancien, qui parle d’endurance et de retenue.
+
+Il est déjà écrit,
+pas ici, mais ailleurs.
+
+Cherche-le en lettres arabes
+
+Ne le copie pas tel quel.
+Lis-le.
+Prononce-le.
+Écris-le en français phonétique,
+lettre pour lettre.
+
+Il commence par un S majuscule.
+
+Quand le nombre et ce mot sont réunis,
+tu as exactement ce que tu cherches.`;
+
+  function updateCountdown() {
+    const startTime = localStorage.getItem(KEY);
+    if (!startTime) return;
+
+    const remaining = DURATION - (Date.now() - startTime);
+
+    if (remaining <= 0) {
+      countdown.textContent = "";
+      btn.style.display = "none";
+      revealTextLetterByLetter();
+      return;
+    }
+
+    const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+    countdown.textContent = `Accès dans ${days}j ${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  btn.onclick = () => {
+    if (!localStorage.getItem(KEY)) {
+      localStorage.setItem(KEY, Date.now());
+    }
+    btn.style.display = "none";
+    updateCountdown();
+  };
+
+  if (localStorage.getItem(KEY)) {
+    btn.style.display = "none";
+  }
+
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  // Texte qui s'affiche lettre par lettre
+  function revealTextLetterByLetter() {
+    textDiv.style.display = "block";
+    ding.play();
+    let i = 0;
+    function type() {
+      if (i < finalText.length) {
+        textDiv.textContent += finalText[i];
+        i++;
+        setTimeout(type, 25); // vitesse (25ms par lettre)
+      }
+    }
+    type();
+  }
+</script>
+
+</body>
+</html>
