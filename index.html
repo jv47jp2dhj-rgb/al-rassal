@@ -2,68 +2,51 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Accès différé</title>
+  <title>Accès</title>
   <style>
     body {
-      background: #fff;
-      color: #000;
+      background: #ffffff;
+      color: #000000;
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px;
       min-height: 100vh;
+      padding: 40px;
       text-align: center;
     }
 
-    button {
-      padding: 12px 24px;
-      font-size: 18px;
-      cursor: pointer;
-      border: 1px solid #000;
-      background: none;
-      color: #000;
-      margin-bottom: 20px;
-    }
-
     #countdown {
-      font-size: 20px;
-      margin-bottom: 30px;
+      font-size: 18px;
     }
 
     #text {
       display: none;
-      max-width: 600px;
+      margin-top: 40px;
+      max-width: 700px;
       text-align: left;
+      white-space: pre-wrap;
+      line-height: 1.6;
       font-size: 16px;
-      line-height: 1.5;
-      white-space: pre-line;
     }
   </style>
 </head>
 <body>
 
-<button id="accessBtn">Accès</button>
 <div id="countdown"></div>
-
 <div id="text"></div>
 
-<audio id="dingSound">
-  <source src="https://www.soundjay.com/button/sounds/button-3.mp3" type="audio/mpeg">
-</audio>
-
 <script>
-  const DURATION = 48 * 60 * 60 * 1000; // 48h en ms
-  const KEY = "access_start_time";
+  const DURATION = 30 * 1000; // 30 secondes
+  const STORAGE_KEY = "start_time_auto";
 
-  const btn = document.getElementById("accessBtn");
   const countdown = document.getElementById("countdown");
   const textDiv = document.getElementById("text");
-  const ding = document.getElementById("dingSound");
 
-  const finalText = `compte discord  
+  const FINAL_TEXT = `compte discord  
 usename : 
+
 La réponse ne se trouve pas dans un écran.
 Elle est gravée dans un souvenir.
 
@@ -91,7 +74,9 @@ tu obtiens le nom complet.
 Et si tu comptes bien,
 il y a onze lettres.
 
+
 mdp : 
+
 Tout commence par deux naissances.
 La tienne, puis la mienne.
 
@@ -112,7 +97,7 @@ Un mot court, ancien, qui parle d’endurance et de retenue.
 Il est déjà écrit,
 pas ici, mais ailleurs.
 
-Cherche-le en lettres arabes
+Cherche-le en lettres arabes.
 
 Ne le copie pas tel quel.
 Lis-le.
@@ -125,56 +110,42 @@ Il commence par un S majuscule.
 Quand le nombre et ce mot sont réunis,
 tu as exactement ce que tu cherches.`;
 
-  function updateCountdown() {
-    const startTime = localStorage.getItem(KEY);
-    if (!startTime) return;
+  // Démarrage automatique au premier chargement
+  if (!localStorage.getItem(STORAGE_KEY)) {
+    localStorage.setItem(STORAGE_KEY, Date.now());
+  }
 
-    const remaining = DURATION - (Date.now() - startTime);
+  function update() {
+    const start = localStorage.getItem(STORAGE_KEY);
+    const remaining = DURATION - (Date.now() - start);
 
     if (remaining <= 0) {
       countdown.textContent = "";
-      btn.style.display = "none";
-      revealTextLetterByLetter();
+      revealText();
       return;
     }
 
-    const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-
-    countdown.textContent = `Accès dans ${days}j ${hours}h ${minutes}m ${seconds}s`;
+    const s = Math.ceil(remaining / 1000);
+    countdown.textContent = `Accès dans ${s}s`;
   }
 
-  btn.onclick = () => {
-    if (!localStorage.getItem(KEY)) {
-      localStorage.setItem(KEY, Date.now());
-    }
-    btn.style.display = "none";
-    updateCountdown();
-  };
-
-  if (localStorage.getItem(KEY)) {
-    btn.style.display = "none";
-  }
-
-  setInterval(updateCountdown, 1000);
-  updateCountdown();
-
-  // Texte qui s'affiche lettre par lettre
-  function revealTextLetterByLetter() {
+  function revealText() {
+    if (textDiv.textContent.length > 0) return;
     textDiv.style.display = "block";
-    ding.play();
     let i = 0;
+
     function type() {
-      if (i < finalText.length) {
-        textDiv.textContent += finalText[i];
+      if (i < FINAL_TEXT.length) {
+        textDiv.textContent += FINAL_TEXT[i];
         i++;
-        setTimeout(type, 25); // vitesse (25ms par lettre)
+        setTimeout(type, 20);
       }
     }
     type();
   }
+
+  setInterval(update, 1000);
+  update();
 </script>
 
 </body>
